@@ -176,9 +176,16 @@ class UserController extends Controller {
   async info() {
     const { ctx } = this
     const data = await ctx.service.user.info(ctx.session.id)
-    ctx.body = {
-      code: 0,
-      data
+    if (data) {
+      ctx.body = {
+        code: 0,
+        data
+      }
+    } else {
+      ctx.body = {
+        code: 602,
+        message: '用户信息获取失败'
+      }
     }
   }
 
