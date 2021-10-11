@@ -160,14 +160,14 @@ class UserController extends Controller {
         }
       } else {
         ctx.body = {
-          code: 602,
-          message: '保存手机号出现异常'
+          code: 603,
+          message: '手机号保存失败'
         }
       }
     } else {
       ctx.body = {
         code: 602,
-        message: '数据解密错误'
+        message: '手机号获取失败'
       }
     }
   }
@@ -176,9 +176,16 @@ class UserController extends Controller {
   async info() {
     const { ctx } = this
     const data = await ctx.service.user.info(ctx.session.id)
-    ctx.body = {
-      code: 0,
-      data
+    if (data){
+      ctx.body = {
+        code: 0,
+        data
+      }
+    } else {
+      ctx.body = {
+        code: 602,
+        message: '用户信息获取失败'
+      }
     }
   }
 

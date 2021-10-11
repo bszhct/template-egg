@@ -43,23 +43,28 @@ class UserService extends Service {
 
   // 获取用户信息
   async info(id) {
-    const res = await this.ctx.model.User.findOne({
-      where: { id }
-    })
-      .then(async res => {
-        if (res) {
-          // 更新登录时间
-          await res.update({
-            loggedAt: moment().format('YYYY-MM-DD HH:mm:ss')
-          })
-        }
-        // 这里重新查询一次，否则 loggedAt 和 updatedAt 字段返回的还是没有格式化的（上面的更新操作影响的）
-        return await this.ctx.model.User.findOne({
-          where: { id },
-          attributes
-        })
+    try {
+      const res = await this.ctx.model.User.findOne({
+        where: { id }
       })
-    return res
+        .then(async res => {
+          if (res) {
+            // 更新登录时间
+            await res.update({
+              loggedAt: moment().format('YYYY-MM-DD HH:mm:ss')
+            })
+          }
+          // 这里重新查询一次，否则 loggedAt 和 updatedAt 字段返回的还是没有格式化的（上面的更新操作影响的）
+          return await this.ctx.model.User.findOne({
+            where: { id },
+            attributes
+          })
+        })
+      return res
+    } catch (error) {
+      this.ctx.logger.error(error)
+    }
+    return false
   }
 }
 
