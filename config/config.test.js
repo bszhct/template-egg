@@ -4,6 +4,8 @@
  * 测试环境
  * @param {Egg.EggAppInfo} app 实例对象
  */
+const path = require('path')
+
 module.exports = app => {
   const config = exports = {}
 
@@ -15,7 +17,11 @@ module.exports = app => {
     dialect: 'mysql'
   }
 
-  return {
-    ...config
-  }
+  // 自定义日志路径
+  // https://eggjs.org/zh-cn/core/logger.html
+  // config.logger = {
+  //   dir: '/path/to/your/custom/log/dir'
+  // }
+
+  return config
 }

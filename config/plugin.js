@@ -9,11 +9,15 @@ module.exports = {
   routerPlus: {
     enable: true,
     package: 'egg-router-plus'
-  }
+  },
+  validatePlus: {
+    enable: true,
+    package: 'egg-validate-plus'
+  },
   // https://github.com/eggjs/egg-cors
   // 跨域配置
-  // cors: {
-  //   enable: false,
-  //   package: 'egg-cors'
-  // }
+  cors: {
+    enable: false,
+    package: 'egg-cors'
+  }
 }

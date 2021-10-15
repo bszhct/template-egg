@@ -63,9 +63,11 @@ module.exports = app => {
     csrf: {
       enable: false
     }
-    // domainWhiteList: [
-    //   'http://localhost:8081'
-    // ]
+  }
+
+  config.cors = {
+    origin: '*',
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH'
   }
 
   // 启动端口配置
@@ -87,6 +89,20 @@ module.exports = app => {
   config.wxapp = {
     appId: '',
     secret: ''
+  }
+
+  // 参数校验配置
+  config.validatePlus = {
+    // 校验通过了始终返回 true，不通过返回 false
+    resolveError(ctx, errors) {
+      if (errors.length) {
+        // 始终返回第一个错误
+        ctx.body = {
+          code: 602,
+          message: errors[0].message
+        }
+      }
+    }
   }
 
   return {
