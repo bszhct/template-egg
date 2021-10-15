@@ -9,8 +9,9 @@ const attributes = [ 'id', 'openId', 'nickName', 'avatarUrl', 'phone', 'loggedAt
 class UserService extends Service {
   // 登录
   async login(openId, defaults) {
+    const { ctx } = this
     try {
-      const res = await this.ctx.model.User.findOne({
+      const data = await ctx.model.User.findOne({
         where: { openId }
       })
         .then(async res => {
@@ -19,22 +20,23 @@ class UserService extends Service {
             return await res.update(defaults)
           }
           // 这里重新查询一次，否则 loggedAt 和 updatedAt 字段返回的还是没有格式化的（上面的更新操作影响的）
-          return await this.ctx.model.User.create({
+          return await ctx.model.User.create({
             openId,
             ...defaults
           })
         })
-      return JSON.parse(JSON.stringify(res))
+      return ctx.helper.clone(data)
     } catch (error) {
-      this.ctx.logger.error(error)
+      ctx.logger.error(error)
     }
     return false
   }
 
   // 保存手机号
   async savePhone(id, phone) {
+    const { ctx } = this
     try {
-      const res = await this.ctx.model.User.findOne({
+      const data = await ctx.model.User.findOne({
         where: { id }
       })
         .then(async res => {
@@ -43,17 +45,18 @@ class UserService extends Service {
           }
           return res
         })
-      return JSON.parse(JSON.stringify(res))
+      return ctx.helper.clone(data)
     } catch (error) {
-      this.ctx.logger.error(error)
+      ctx.logger.error(error)
     }
     return false
   }
 
   // 获取用户信息
   async info(id) {
+    const { ctx } = this
     try {
-      const res = await this.ctx.model.User.findOne({
+      const data = await ctx.model.User.findOne({
         where: { id }
       })
         .then(async res => {
@@ -64,14 +67,14 @@ class UserService extends Service {
             })
           }
           // 这里重新查询一次，否则 loggedAt 和 updatedAt 字段返回的还是没有格式化的（上面的更新操作影响的）
-          return await this.ctx.model.User.findOne({
+          return await ctx.model.User.findOne({
             where: { id },
             attributes
           })
         })
-      return JSON.parse(JSON.stringify(res))
+      return ctx.helper.clone(data)
     } catch (error) {
-      this.ctx.logger.error(error)
+      ctx.logger.error(error)
     }
     return false
   }

@@ -72,5 +72,20 @@ module.exports = {
     const [ ox, oy, oz ] = version
     const [ nx, ny, nz ] = v.split('.')
     return nx >= ox && ny >= oy && nz >= oz
+  },
+  // 数据拷贝
+  clone(data) {
+    return JSON.parse(JSON.stringify(data))
+  },
+  // 对象转成字符串
+  objectToUrlString(data, filterEmpty = true) {
+    const res = Object.entries(data).map(([ k, v ]) => {
+      if (filterEmpty && !!v) {
+        return `${k}=${v}`
+      }
+      return `${k}=${v}`
+    })
+      .join('&')
+    return `?${res}`
   }
 }

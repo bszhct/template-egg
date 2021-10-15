@@ -15,7 +15,5 @@ module.exports = app => {
     dialect: 'mysql'
   }
 
-  return {
-    ...config
-  }
+  return config
 }

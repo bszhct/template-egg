@@ -9,13 +9,11 @@ module.exports = app => {
 
   config.sequelize = {
     username: 'root',
-    password: null,
+    password: 'fyl121212',
     database: 'template_test',
     host: '127.0.0.1',
     dialect: 'mysql'
   }
 
-  return {
-    ...config
-  }
+  return config
 }
