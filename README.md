@@ -59,7 +59,6 @@ async save() {
 
 ### 多表查询使用 required 参数
 
-
 ```js
 async info() {
   const { ctx } = this
@@ -82,8 +81,36 @@ async info() {
       })
     return ctx.helper.clone(res)
   } catch (error) {
-    // 只要出错就回滚
-    if (transaction) await transaction.rollback()
+    this.logger.error(error)
+  }
+}
+
+```
+
+### 分页查询使用 duplicating 参数
+
+```js
+async info() {
+  const { ctx } = this
+  try {
+    const res = await ctx.model.School.findAndCountAll({
+      limit: parseInt(values.pageSize),
+      where: { id },
+      include: [{
+        model: ctx.model.College,
+        as: 'colleges',
+        attributes: [ 'id', 'name' ]
+      }],
+      // 不将 colleges 的条数计算在 limit 内 
+      duplicating: false
+    })
+      .then(async res => {
+        if (res) {
+          await res.update(values)
+        }
+      })
+    return ctx.helper.clone(res)
+  } catch (error) {
     this.logger.error(error)
   }
 }
