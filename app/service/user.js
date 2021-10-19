@@ -11,19 +11,23 @@ class UserService extends Service {
   async login(openId, defaults) {
     const { ctx } = this
     try {
-      const data = await ctx.model.User.findOne({
-        where: { openId }
+      // 找到了返回当前用户信息否则新增一个用户
+      const data = await this.ctx.model.User.findOrCreate({
+        defaults,
+        where: { openId },
+        attributes
       })
-        .then(async res => {
-          if (res) {
-            // 更新用户信息
-            return await res.update(defaults)
+        .then(async ([ user, created ]) => {
+          const loggedAt = moment().format('YYYY-MM-DD HH:mm:ss')
+          if (created) {
+            await user.update({
+              loggedAt
+            })
+          } else {
+            defaults.loggedAt = loggedAt
+            await user.update(defaults)
           }
-          // 这里重新查询一次，否则 loggedAt 和 updatedAt 字段返回的还是没有格式化的（上面的更新操作影响的）
-          return await ctx.model.User.create({
-            openId,
-            ...defaults
-          })
+          return user
         })
       return ctx.helper.clone(data)
     } catch (error) {
