@@ -56,7 +56,6 @@ async save() {
 
 ```
 
-
 ### 多表查询使用 required 参数
 
 ```js
@@ -68,11 +67,11 @@ async info() {
       include: [{
         model: ctx.model.College,
         as: 'colleges',
-        attributes: [ 'id', 'name' ]
-      }],
-      // https://sequelize.org/master/manual/eager-loading.html#required-eager-loading
-      // 查不到数据的时候，返回带结构的数据，例如返回空数组、空对象
-      required: false
+        attributes: [ 'id', 'name' ],
+        // https://sequelize.org/master/manual/eager-loading.html#required-eager-loading
+        // 查不到数据的时候，返回带结构的数据，例如返回空数组、空对象
+        required: false
+      }]
     })
       .then(async res => {
         if (res) {
@@ -87,7 +86,7 @@ async info() {
 
 ```
 
-### 分页查询使用 duplicating 参数
+### 分页查询使用 distinct 参数
 
 ```js
 async info() {
@@ -96,13 +95,13 @@ async info() {
     const res = await ctx.model.School.findAndCountAll({
       limit: parseInt(values.pageSize),
       where: { id },
+      // 分页条数不计算 include 里面的数据
+      distinct: true,
       include: [{
         model: ctx.model.College,
         as: 'colleges',
         attributes: [ 'id', 'name' ]
-      }],
-      // 不将 colleges 的条数计算在 limit 内 
-      duplicating: false
+      }]
     })
       .then(async res => {
         if (res) {
@@ -116,11 +115,6 @@ async info() {
 }
 
 ```
-
-
-### 分页查询使用 distinct 参数
-
-- todo
 
 
 ## 文档
