@@ -86,6 +86,7 @@ class UserController extends Controller {
       openId, unionId, nickName, avatarUrl, phone, gender, province, city, language
     })
     if (data) {
+      ctx.session.id = data.id
       data.sessionKey = sessionKey
       ctx.body = {
         code: 0, data
@@ -129,8 +130,6 @@ class UserController extends Controller {
       // 完整的用户数据
       const data = await ctx.service.user.savePhone(userId, phoneData.phoneNumber)
       if (data) {
-        // 只有获取到手机号了才进行登录
-        ctx.session.id = data.id
         ctx.body = {
           code: 0, data
         }
