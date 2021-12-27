@@ -1,9 +1,5 @@
 'use strict'
 
-/**
- * 通用配置项
- * @param {Egg.EggAppInfo} app 实例对象
- */
 module.exports = app => {
   const config = exports = {}
 

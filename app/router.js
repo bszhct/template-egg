@@ -10,13 +10,13 @@ module.exports = app => {
   router.get('/', controller.home.index)
   // 设置统一的前缀
   const subRouter = router.namespace('/bs/')
-  // 本地环境
-  const isLocal = app.config.env === 'local'
+  // 开发环境
+  const isDev = app.config.env === 'local' || app.config.env === 'test'
 
   /**
    * 用户模块
    */
-  if (isLocal) {
+  if (isDev) {
     subRouter.get('user/mock', controller.user.mock)
   }
   subRouter.post('user/login', controller.user.login)
