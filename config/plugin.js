@@ -19,5 +19,10 @@ module.exports = {
   cors: {
     enable: false,
     package: 'egg-cors'
+  },
+  // https://github.com/DG-Wangtao/egg-swagger-doc#readme
+  swaggerdoc: {
+    enable: false,
+    package: 'egg-swagger-doc-feat'
   }
 }

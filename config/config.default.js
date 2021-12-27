@@ -14,7 +14,7 @@ module.exports = app => {
   // 中间件
   config.middleware = [ 'checkToken', 'errorHandler' ]
 
-  // 用户配置
+  // 应用配置
   const userConfig = {
     myAppName: 'template-egg'
   }
@@ -77,6 +77,11 @@ module.exports = app => {
       port: 7001,
       hostname: '0.0.0.0'
     }
+  }
+
+  // 秘钥配置
+  config.jwt = {
+    secret: 'K31XB4NE079S86LJA5UGOMPW2YHZIRTVDFCQ'
   }
 
   // 权限配置
