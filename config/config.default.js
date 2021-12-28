@@ -8,16 +8,48 @@ module.exports = app => {
   config.keys = app.name + key
 
   // 中间件
-  config.middleware = [ 'checkToken', 'errorHandler' ]
+  config.middleware = [
+    'catchError'
+  ]
 
-  // 应用配置
+  /**
+   * 应用配置
+   */
+  // 接口前缀名称，跟随业务系统修改
+  const apiPrefixName = 'bs'
+  // 接口完整前缀
+  const apiPrefix = `/${apiPrefixName}/`
+  // 后台接口前缀，跟随业务系统修改
+  const manageApiPrefixName = 'manage'
+  // 后台接口前缀
+  const manageApiPrefix = `/${manageApiPrefixName}/`
   const userConfig = {
-    myAppName: 'template-egg'
+    // 应用名称，用于日志文件目录指定、cookie 的 key 指定，具有唯一性，跟随业务系统修改
+    appName: 'template-egg',
+    apiPrefixName,
+    apiPrefix,
+    manageApiPrefixName,
+    manageApiPrefix,
+    // 默认的 code 码和错误提示信息配置，只需要改这一个地方即可
+    resCode: {
+      success: {
+        code: 0
+      },
+      error: {
+        code: 602, message: '参数异常'
+      },
+      serverError: {
+        code: 500, message: '服务器异常'
+      },
+      notLogged: {
+        code: 601, message: '请先登录后再操作'
+      }
+    }
   }
 
   // cookie 失效时间配置
   config.session = {
-    key: '_bs_wxapp_',
+    key: `_${userConfig.appName}_${apiPrefixName}_`,
     // 30 天
     maxAge: 24 * 3600 * 1000 * 30,
     httpOnly: true,
@@ -25,8 +57,8 @@ module.exports = app => {
   }
 
   // 后台管理 cookie 失效时间配置
-  config.adminSession = {
-    key: '_bs_wxapp_admin_',
+  config.manageSession = {
+    key: `_${userConfig.appName}_${manageApiPrefixName}_`,
     // 30 天
     maxAge: 24 * 3600 * 1000 * 30,
     httpOnly: true,
@@ -56,9 +88,9 @@ module.exports = app => {
   // 配置安全策略
   config.security = {
     // 关闭 CSRF 攻击防御（伪造用户请求向网站发起恶意请求）
-    csrf: {
-      enable: false
-    }
+    // csrf: {
+    //   enable: false
+    // }
   }
 
   config.cors = {
@@ -75,15 +107,15 @@ module.exports = app => {
     }
   }
 
-  // 秘钥配置
-  config.jwt = {
-    secret: 'K31XB4NE079S86LJA5UGOMPW2YHZIRTVDFCQ'
-  }
-
   // 权限配置
-  config.checkToken = {
+  config.catchError = {
     // 接口白名单配置
-    whiteUrls: [ '/bs/user/mock', '/bs/user/login', '/bs/user/logout', '/bs/user/phone' ]
+    whiteUrls: [
+      `${apiPrefix}user/mock`,
+      `${apiPrefix}user/login`,
+      `${apiPrefix}user/logout`,
+      `${apiPrefix}user/phone`
+    ]
   }
 
   // 微信小程序配置
@@ -99,7 +131,7 @@ module.exports = app => {
       if (errors.length) {
         // 始终返回第一个错误
         ctx.body = {
-          code: 602,
+          code: userConfig.resCode.error.code,
           message: errors[0].message
         }
       }

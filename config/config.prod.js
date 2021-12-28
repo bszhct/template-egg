@@ -15,5 +15,11 @@ module.exports = app => {
     dialect: 'mysql'
   }
 
+  // 自定义日志路径
+  // https://eggjs.org/zh-cn/core/logger.html
+  config.logger = {
+    dir: `~/logs/${app.config.appName}`
+  }
+
   return config
 }

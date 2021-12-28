@@ -19,9 +19,7 @@ class UserController extends Controller {
       ctx.session.id = data.id
       ctx.rotateCsrfSecret()
     }
-    ctx.body = {
-      code: 0, data
-    }
+    this.ctx.helper.success(data)
   }
 
   // 微信登录
@@ -30,9 +28,7 @@ class UserController extends Controller {
     const { code, nickName, avatarUrl, phone, gender, province, city, language } = ctx.request.body
 
     if (!code) {
-      ctx.body = {
-        code: 602, message: '鉴权需要的 code 不能为空'
-      }
+      this.ctx.helper.error(null, '鉴权需要的 code 不能为空')
       return
     }
 
@@ -52,7 +48,7 @@ class UserController extends Controller {
         // 只返回需要的数据
         .then(res => res.data)
 
-      // 输出一下日志
+      // 输出授权数据方便调试
       ctx.logger.info(`授权之后拿到的数据 => ${res}`)
       console.log('授权之后拿到的数据')
       console.log(res)
@@ -63,22 +59,16 @@ class UserController extends Controller {
       sessionKey = res.session_key
     } catch (error) {
       ctx.logger.error(error)
-      ctx.body = {
-        code: 602, message: '授权失败'
-      }
+      this.ctx.helper.error(null, '授权失败')
       return
     }
     // 空值判断
     if (!nickName) {
-      ctx.body = {
-        code: 602, message: '昵称不能为空'
-      }
+      this.ctx.helper.error(null, '昵称不能为空')
       return
     }
     if (!avatarUrl) {
-      ctx.body = {
-        code: 602, message: '头像不能为空'
-      }
+      this.ctx.helper.error(null, '头像不能为空')
       return
     }
 
@@ -88,13 +78,9 @@ class UserController extends Controller {
     if (data) {
       ctx.session.id = data.id
       data.sessionKey = sessionKey
-      ctx.body = {
-        code: 0, data
-      }
+      this.ctx.helper.success(data)
     } else {
-      ctx.body = {
-        code: 602, message: '授权出现未知错误'
-      }
+      this.ctx.helper.error(null, '授权出现未知错误')
     }
   }
 
@@ -120,9 +106,7 @@ class UserController extends Controller {
       phoneData = ctx.helper.wxCrypt({ appId, sessionKey, iv, encryptedData })
     } catch (error) {
       ctx.logger.error(error)
-      ctx.body = {
-        code: 602, message: '手机号解密失败'
-      }
+      this.ctx.helper.error(null, '手机号解密失败')
       return
     }
 
@@ -130,18 +114,12 @@ class UserController extends Controller {
       // 完整的用户数据
       const data = await ctx.service.user.savePhone(userId, phoneData.phoneNumber)
       if (data) {
-        ctx.body = {
-          code: 0, data
-        }
+        this.ctx.helper.success(data)
       } else {
-        ctx.body = {
-          code: 603, message: '手机号保存失败'
-        }
+        this.ctx.helper.error(null, '手机号保存失败')
       }
     } else {
-      ctx.body = {
-        code: 602, message: '手机号获取失败'
-      }
+      this.ctx.helper.error(null, '手机号获取失败')
     }
   }
 
@@ -150,13 +128,9 @@ class UserController extends Controller {
     const { ctx } = this
     const data = await ctx.service.user.info(ctx.session.id)
     if (data) {
-      ctx.body = {
-        code: 0, data
-      }
+      this.ctx.helper.success(data)
     } else {
-      ctx.body = {
-        code: 602, message: '用户信息获取失败'
-      }
+      this.ctx.helper.error(null, '用户信息获取失败')
     }
   }
 
@@ -164,9 +138,7 @@ class UserController extends Controller {
   async logout() {
     const { ctx } = this
     ctx.session.id = null
-    ctx.body = {
-      code: 0
-    }
+    this.ctx.helper.success(null)
   }
 }
 

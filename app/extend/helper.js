@@ -3,8 +3,10 @@
 const { v4: uuidv4 } = require('uuid')
 const WXCrypt = require('./wx-crypt')
 
-// 新旧接口兼容的版本号标识，有不兼容的代码时更新该版本号，主要为了应对审核以及通过 24h 内没有更新到最新版本的用户
-// 当需要发新版本时，用户已全部更新到最新版本，所以每次只要有不兼容的更新，只需要更新该版本号即可
+/**
+ * 新旧接口兼容的版本号标识，有不兼容的代码时更新该版本号，主要为了应对审核以及通过 24h 内没有更新到最新版本的用户
+ * 当需要发新版本时，用户已全部更新到最新版本，所以每次只要有不兼容的更新，只需要更新该版本号即可
+ */
 const version = [ 1, 0, 0 ]
 
 module.exports = {
@@ -79,13 +81,32 @@ module.exports = {
   },
   // 对象转成字符串
   objectToUrlString(data, filterEmpty = true) {
-    const res = Object.entries(data).map(([ k, v ]) => {
+    let res = '?'
+    res += Object.entries(data).map(([ k, v ]) => {
       if (filterEmpty && !!v) {
         return `${k}=${v}`
       }
       return `${k}=${v}`
-    })
-      .join('&')
-    return `?${res}`
+    }).join('&')
+    return res
+  },
+  /**
+   * 请求体部分
+   */
+  // 请求成功
+  success(data, message) {
+    this.ctx.body = {
+      ...this.ctx.app.config.resCode.success,
+      data,
+      message
+    }
+  },
+  // 参数异常
+  error(data, message) {
+    this.ctx.body = {
+      ...this.ctx.app.config.resCode.error,
+      data,
+      message
+    }
   }
 }

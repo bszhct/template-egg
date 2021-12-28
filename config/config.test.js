@@ -19,9 +19,9 @@ module.exports = app => {
 
   // 自定义日志路径
   // https://eggjs.org/zh-cn/core/logger.html
-  // config.logger = {
-  //   dir: '/path/to/your/custom/log/dir'
-  // }
+  config.logger = {
+    dir: `~/logs/${app.config.appName}-test`
+  }
 
   return config
 }
