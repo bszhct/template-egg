@@ -121,3 +121,8 @@ async info() {
 
 [eggjs](https://eggjs.org/zh-cn/intro/quickstart.html)
 
+
+## todo
+
+- 自动生成文档方案探索
+
