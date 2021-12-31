@@ -1,5 +1,6 @@
 'use strict'
 
+const os = require('os')
 const { v4: uuidv4 } = require('uuid')
 const WXCrypt = require('./wx-crypt')
 
@@ -10,9 +11,18 @@ const WXCrypt = require('./wx-crypt')
 const version = [ 1, 0, 0 ]
 
 module.exports = {
-  // 将菜单拆解成顶层的一级菜单和根据 parentId 进行分类好的子菜单
-  splitMenu(data) {
+  /**
+   * 将菜单拆解成顶层的一级菜单和根据 parentId 进行分类好的子菜单
+   * @param {array} data 菜单列表
+   * @return {array} 组装好的菜单树
+   */
+  treeMenu(data) {
+    if (data.length <= 0) {
+      return []
+    }
+    // 最终要返回的菜单列表
     const menus = []
+    // 所有的子菜单
     const children = {}
     data.forEach(menu => {
       delete menu.createdAt
@@ -34,66 +44,110 @@ module.exports = {
         }
       }
     })
-    return {
-      menus,
-      children
-    }
-  },
-  // 将菜单生成树状结构
-  treeMenu(menus, children) {
-    let currentChildren = []
-    if (Object.keys(children).length <= 0) {
-      return
-    }
-    menus.forEach(item => {
-      if (children[item.id]) {
-        item.children = item.children || []
-        item.children = children[item.id]
-        currentChildren = currentChildren.concat(children[item.id])
-        delete children[item.id]
+    // 递归把子菜单挂载到 menus 上
+    const treeMenu = () => {
+      let currentChildren = []
+      if (Object.keys(children).length <= 0) {
+        return
       }
-    })
-    if (currentChildren.length) {
-      this.treeMenu(currentChildren, children)
+      menus.forEach(item => {
+        if (children[item.id]) {
+          item.children = item.children || []
+          item.children = children[item.id]
+          currentChildren = currentChildren.concat(children[item.id])
+          delete children[item.id]
+        }
+      })
+      if (currentChildren.length) {
+        treeMenu(currentChildren, children)
+      }
     }
+    treeMenu()
+    return menus
   },
-  // 生成唯一标识
+  /**
+   * 生成 uid
+   * @return {string} 例如：9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+   */
   createUid() {
     return uuidv4()
   },
-  // 解密微信数据
+  /**
+   * 解密微信数据
+   * @param {String} data 微信数据
+   * @param {string} data.appId 微信公众号的 appId
+   * @param {string} data.sessionKey 微信授权登录成功后的 sessionKey
+   * @param {string} data.encryptedData 需要解密的数据
+   * @param {string} data.iv 初始向量
+   * @return {*} 返回解密后的数据
+   */
   wxCrypt({ appId, sessionKey, encryptedData, iv }) {
     const pc = new WXCrypt(appId, sessionKey)
     return pc.decryptData(encryptedData, iv)
   },
-  // 判断版本号是否大于指定版本
-  thanVersion(v) {
-    if (!v) {
-      return false
+  /**
+   * 判断版本号是否大于指定版本
+   * @param {string} v1 当前版本号
+   * @param {string} v2 目标版本号
+   * @return {number} 对比结果，1：当前版本大于指定版本，0：当前版本等于指定版本，-1：当前版本小于指定版本
+   */
+  thanVersion(v1, v2) {
+    v1 = v1.split('.')
+    // 如果没传递目标版本号，则默认使用内置的版本号
+    v2 = v2 ? v2.split('.') : version
+    const len = Math.max(v1.length, v2.length)
+    // 补全版本号位数
+    while (v1.length < len) {
+      v1.push('0')
     }
-    const [ ox, oy, oz ] = version
-    const [ nx, ny, nz ] = v.split('.')
-    return nx >= ox && ny >= oy && nz >= oz
+    while (v2.length < len) {
+      v2.push('0')
+    }
+    // 对比版本号
+    for (let i = 0; i < len; i++) {
+      const num1 = parseInt(v1[i])
+      const num2 = parseInt(v2[i])
+      if (num1 > num2) {
+        return 1
+      } else if (num1 < num2) {
+        return -1
+      }
+    }
+    return 0
   },
-  // 数据拷贝
+  /**
+   * 简单的数据拷贝
+   * @param {*} data 数据源
+   * @return {*} 拷贝后的数据
+   */
   clone(data) {
     return JSON.parse(JSON.stringify(data))
   },
-  // 对象转成字符串
-  objectToUrlString(data, filterEmpty = true) {
-    let res = '?'
-    res += Object.entries(data).map(([ k, v ]) => {
-      if (filterEmpty && !!v) {
-        return `${k}=${v}`
+  /**
+   * 获取本机 IP 地址
+   * @return {string} IP 地址
+   */
+  getLocalhost() {
+    const interfaces = os.networkInterfaces()
+    for (const devName in interfaces) {
+      const iface = interfaces[devName]
+      for (let i = 0; i < iface.length; i++) {
+        const alias = iface[i]
+        if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+          return alias.address
+        }
       }
-      return `${k}=${v}`
-    }).join('&')
-    return res
+    }
+    return '127.0.0.1'
   },
   /**
    * 请求体部分
    */
-  // 请求成功
+  /**
+   * 请求成功
+   * @param {object} data 响应数据，可以是对象或者数组
+   * @param {string} message 提示信息
+   */
   success(data, message) {
     this.ctx.body = {
       ...this.ctx.app.config.resCode.success,
@@ -101,7 +155,11 @@ module.exports = {
       message
     }
   },
-  // 参数异常
+  /**
+   * 参数异常
+   * @param {object} data 响应数据，可以是对象或者数组
+   * @param {string} message 提示信息
+   */
   error(data, message) {
     this.ctx.body = {
       ...this.ctx.app.config.resCode.error,

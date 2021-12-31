@@ -11,29 +11,29 @@ module.exports = app => {
     openId: {
       type: STRING(255),
       allowNull: false,
-      comment: '同微信的 openid，转成驼峰式'
+      comment: '同微信的 openid'
     },
     unionId: {
       type: STRING(255),
-      comment: '同微信的 unionid，转成驼峰式，作为预留字段'
+      comment: '同微信的 unionid，作为预留字段，不一定有值'
     },
     nickName: {
       type: STRING(255),
       allowNull: false,
-      comment: '微信昵称'
+      comment: '昵称，同微信的 nickName'
     },
     password: {
       type: STRING(255),
-      comment: '登陆密码，作为预留字段，不一定有值'
+      comment: '登录密码，作为预留字段，不一定有值'
     },
     avatarUrl: {
       type: TEXT,
       allowNull: false,
-      comment: '头像地址'
+      comment: '头像，同微信的 avatarUrl'
     },
     phone: {
       type: STRING(255),
-      comment: '电话号码，可能为空'
+      comment: '手机号，可能为空'
     },
     gender: {
       type: INTEGER,

@@ -16,9 +16,9 @@ module.exports = (options, app) => {
         const { config } = ctx.app
         const cookie = config.manageSession
         if (
-          // 管理系统的权限判断
+          // 管理系统的登录权限判断
           (!ctx.cookies.get(cookie.key, cookie) && ctx.url.match(new RegExp(`^${config.manageApiPrefix}`))) ||
-          // 小程序的权限判断
+          // 小程序的登录权限判断
           (!ctx.session.id && ctx.url.match(new RegExp(`^${config.apiPrefix}`)))
         ) {
           ctx.body = config.resCode.notLogged

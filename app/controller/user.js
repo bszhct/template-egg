@@ -2,8 +2,17 @@
 
 const Controller = require('egg').Controller
 
+/**
+ * @controller User 用户模块
+ */
 class UserController extends Controller {
-  // 模拟登录
+  /**
+   * @summary 模拟登录
+   * @description 通过 mock 的方式登录
+   * @router get /user/mock
+   * @request query string *id 用户 id
+   * @response 0 userInfo 登录成功
+   */
   async mock() {
     const { ctx } = this
     const { id } = ctx.request.query
@@ -22,7 +31,13 @@ class UserController extends Controller {
     this.ctx.helper.success(data)
   }
 
-  // 微信登录
+  /**
+   * @summary 小程序登录
+   * @description 目前仅支持微信小程序登录
+   * @router post /user/login
+   * @request body login *body
+   * @response 0 userInfo 登录成功
+   */
   async login() {
     const { ctx } = this
     const { code, nickName, avatarUrl, phone, gender, province, city, language } = ctx.request.body
@@ -39,10 +54,10 @@ class UserController extends Controller {
     let sessionKey = null
     try {
       // 发起授权
-      const queryString = ctx.helper.objectToUrlString({
+      const queryString = new URLSearchParams({
         appid: appId, secret, js_code: code, grant_type: 'authorization_code'
-      })
-      const res = await ctx.curl(`https://api.weixin.qq.com/sns/jscode2session${queryString}`, {
+      }).toString()
+      const res = await ctx.curl(`https://api.weixin.qq.com/sns/jscode2session?${queryString}`, {
         contentType: 'json', dataType: 'json'
       })
         // 只返回需要的数据
@@ -84,7 +99,12 @@ class UserController extends Controller {
     }
   }
 
-  // 解密手机号信息
+  /**
+   * @summary 解密手机号信息
+   * @description 获取用户当前绑定的手机号
+   * @router post /user/phone
+   * @request body phone *body
+   */
   async phone() {
     const { ctx } = this
     const { sessionKey, userId, iv, encryptedData } = ctx.request.body
@@ -96,7 +116,9 @@ class UserController extends Controller {
       iv: { required: true, message: '初始向量不能为空' },
       encryptedData: { required: true, message: '加密数据不能为空' }
     }
-    const passed = await ctx.validate(rules, ctx.request.query)
+    const passed = await ctx.validate(rules, ctx.request.body)
+    // 复用 egg-swagger-doc 结构来校验
+    // const passed = await ctx.validate(ctx.rule.phone, ctx.request.body)
     if (!passed) return
 
     const { appId } = ctx.app.config.wxapp
@@ -123,7 +145,12 @@ class UserController extends Controller {
     }
   }
 
-  // 获取用户信息
+  /**
+   * @summary 获取用户信息
+   * @description 只有登录成功了才会返回用户信息
+   * @router get /user/info
+   * @response 0 userInfo 用户信息
+   */
   async info() {
     const { ctx } = this
     const data = await ctx.service.user.info(ctx.session.id)
@@ -134,7 +161,11 @@ class UserController extends Controller {
     }
   }
 
-  // 登出
+  /**
+   * @summary 登出
+   * @description 退出登录
+   * @router get /user/logout
+   */
   async logout() {
     const { ctx } = this
     ctx.session.id = null

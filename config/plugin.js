@@ -1,6 +1,9 @@
 'use strict'
 
-// 插件配置
+/**
+ * 插件配置
+ */
+
 module.exports = {
   sequelize: {
     enable: true,
@@ -17,12 +20,12 @@ module.exports = {
   // https://github.com/eggjs/egg-cors
   // 跨域配置
   cors: {
-    enable: false,
+    enable: true,
     package: 'egg-cors'
   },
-  // https://github.com/DG-Wangtao/egg-swagger-doc#readme
+  // https://github.com/Yanshijie-EL/egg-swagger-doc
   swaggerdoc: {
-    enable: false,
-    package: 'egg-swagger-doc-feat'
+    enable: true,
+    package: 'egg-swagger-doc'
   }
 }

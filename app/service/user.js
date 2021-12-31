@@ -19,11 +19,12 @@ class UserService extends Service {
       })
         .then(async ([ user, created ]) => {
           const loggedAt = moment().format('YYYY-MM-DD HH:mm:ss')
+          // 如果记录已存在
           if (created) {
             await user.update({
               loggedAt
             })
-          } else {
+          } else { // 否则只是更新一下登录时间
             defaults.loggedAt = loggedAt
             await user.update(defaults)
           }

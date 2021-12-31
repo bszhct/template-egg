@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 'use strict'
 
 /**
- * 生成环境
+ * 单元测试环境
  */
 
 module.exports = app => {
@@ -15,10 +16,10 @@ module.exports = app => {
     dialect: 'mysql'
   }
 
-  // 自定义日志路径
-  // https://eggjs.org/zh-cn/core/logger.html
-  config.logger = {
-    dir: `~/logs/${app.config.appName}`
+  // 本地环境允许跨域
+  config.cors = {
+    origin: '*',
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH'
   }
 
   return config

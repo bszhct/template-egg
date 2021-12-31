@@ -1,5 +1,9 @@
 'use strict'
 
+/**
+ * 微信数据解密封装
+ */
+
 const crypto = require('crypto')
 
 class WXCrypt {
